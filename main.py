@@ -146,7 +146,8 @@ class FaceTrackingSystem:
         """
 
         # Get the score of the detection
-        score = f"{int(face_bboxes[0]["score"]) * 100}%"
+        score_value = round(face_bboxes[0]["score"][0] * 100)
+        score = f"{score_value}%"
 
         # Get the bounding box coordinates
         bbox = face_bboxes[0]["bbox"]
@@ -158,7 +159,7 @@ class FaceTrackingSystem:
         cv2.putText(image, score, (bbox[0], bbox[1] - 20), self.font, 2, self.bbox_color, 2)
 
         # Indicate target lock
-        cv2.putText(image, "TARGET LOCKED", (850, 50), self.font, 3, self.bbox_color, 3)
+        cv2.putText(image, "TARGET LOCKED", (780, 50), self.font, 2, self.bbox_color, 2)
 
     def draw_servo_positions(self, image):
         """
@@ -166,8 +167,8 @@ class FaceTrackingSystem:
         """
 
         # Draw the servo positions
-        cv2.putText(image, f"Servo X: {int(self.servo_positions[0])} deg", (50, 50), self.font, 2, self.text_color, 2)
-        cv2.putText(image, f"Servo Y: {int(self.servo_positions[1])} deg", (50, 100), self.font, 2, self.text_color, 2)
+        cv2.putText(image, f"Servo X: {int(self.servo_positions[0])} deg", (50, 50), self.font, 1, self.text_color, 2)
+        cv2.putText(image, f"Servo Y: {int(self.servo_positions[1])} deg", (50, 100), self.font, 1, self.text_color, 2)
 
     def cleanup(self):
         """
@@ -210,7 +211,7 @@ class FaceTrackingSystem:
             
             else:
                 # If no face is detected, display a default "No Target" message
-                cv2.putText(image, "NO TARGET", (880, 50), self.font, 3, (0, 0, 255), 3)
+                cv2.putText(image, "NO TARGET", (850, 50), self.font, 2, (0, 0, 255), 2)
 
             # Display the current servo angles on the frame
             self.draw_servo_positions(image)
@@ -232,7 +233,7 @@ def main():
     """
 
     # Set camera index, width, height, port, pan pin, and tilt pin
-    CAMERA_INDEX = 0
+    CAMERA_INDEX = 1
     WIDTH = 1280
     HEIGHT = 720
     PORT = "COM4"
