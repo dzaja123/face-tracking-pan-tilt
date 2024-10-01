@@ -23,12 +23,22 @@ pip install -r requirements.txt
 - A camera that is compatible with OpenCV.
 
 # Installation
-Clone the repository:
+1. Clone the repository:
 
 ```bash
 git clone https://github.com/dzaja123/face-tracking-pan-tilt.git
 cd face-tracking-system
 ```
+
+2. Connect your Arduino board and upload the necessary firmware to enable communication with the Python script.
+
+3. Connect the servo motors to the specified pins on the Arduino:
+Pin Connections
+Pan Servo Motor: Connect to the pin specified by PAN_PIN (e.g., Pin 9).
+Tilt Servo Motor: Connect to the pin specified by TILT_PIN (e.g., Pin 10).
+
+Power: Ensure that the servo motors are connected to an appropriate external 5V power source.
+Ground: Connect the ground of the servos to the ground pin on the Arduino and to the ground of the external 5V source.
 
 # Install the required libraries as mentioned above.
 
