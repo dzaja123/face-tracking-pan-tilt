@@ -1,5 +1,6 @@
 import mediapipe as mp
 import cv2
+import logging
 
 
 class FaceDetector:
@@ -16,11 +17,15 @@ class FaceDetector:
             min_detection_confidence=self.min_detection_confidence,
             model_selection=self.model_selection,
         )
+        logging.info("FaceDetector initialized with min_detection_confidence=%s, model_selection=%s",
+                     self.min_detection_confidence, self.model_selection)
 
     def find_faces(self, image):
         """
         Find faces in the image using the MediaPipe face detection model.
         """
+
+        logging.info("Starting face detection")
 
         # Convert the image to RGB format
         img_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -32,6 +37,7 @@ class FaceDetector:
         face_bboxes = []
 
         if self.results.detections:
+            logging.info("Detected %d faces", len(self.results.detections))
             for detection_id, detection in enumerate(self.results.detections):
                 # Process only if the detection result is above the threshold
                 if detection.score[0] > self.min_detection_confidence:
@@ -61,6 +67,14 @@ class FaceDetector:
 
                     # Add face information to the list
                     face_bboxes.append(face_info)
+
+                    logging.info("Face ID %d detected with score %.2f and bounding box %s", 
+                                 detection_id, detection.score[0], bbox)
+                else:
+                    logging.warning("Face ID %d detection score %.2f below threshold", 
+                                    detection_id, detection.score[0])
+        else:
+            logging.info("No faces detected")
 
         # Return the image and the list of detected faces
         return image, face_bboxes

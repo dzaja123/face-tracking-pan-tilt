@@ -1,5 +1,7 @@
 import cv2
 import pyfirmata
+import logging
+
 from face_detector import FaceDetector
 
 
@@ -18,7 +20,7 @@ class FaceTrackingSystem:
 
         # Check if the camera is accessible
         if not self.cap.isOpened():
-            print("Unable to access the camera!")
+            logging.error("Unable to access the camera!")
             exit()
 
         # Initialize the Arduino board and set up pins for pan and tilt servos
@@ -54,20 +56,25 @@ class FaceTrackingSystem:
         """
         Control the pan and tilt servo motors based on the face position differences.
         """
+        logging.debug(f"Moving servos. X diff: {x_diff}, Y diff: {y_diff}")
 
         # Adjust the pan servo motor (X-axis) if the face is outside the allowed threshold
         if abs(x_diff) > self.face_center_threshold:
             if x_diff > 0:
                 self.servo_positions[0] -= 1  # Move left
+                logging.info("Moving pan servo left.")
             else:
                 self.servo_positions[0] += 1  # Move right
+                logging.info("Moving pan servo right.")
 
         # Adjust the tilt servo motor (Y-axis) if the face is outside the allowed threshold
         if abs(y_diff) > self.face_center_threshold:
             if y_diff > 0:
                 self.servo_positions[1] -= 1  # Move down
+                logging.info("Moving tilt servo down.")
             else:
                 self.servo_positions[1] += 1  # Move up
+                logging.info("Moving tilt servo up.")
 
         # Limit servo positions to the range [0, 180]
         self.servo_positions[0] = max(0, min(self.servo_positions[0], 180))
@@ -76,12 +83,12 @@ class FaceTrackingSystem:
         # Send servo positions to the Arduino
         self.pan_servo_pin.write(self.servo_positions[0])
         self.tilt_servo_pin.write(self.servo_positions[1])
+        logging.debug(f"Servo positions updated: Pan: {self.servo_positions[0]}, Tilt: {self.servo_positions[1]}")
 
     def draw_interface(self, image, face_bboxes):
         """
         Draw the interface on the image.
         """
-
         # Get detection results
         score_value = round(face_bboxes[0]["score"][0] * 100)
         score = f"{score_value}%"
@@ -91,6 +98,7 @@ class FaceTrackingSystem:
 
         # Draw the bounding box and confidence score on the image
         image = cv2.rectangle(image, bbox, self.bbox_color, 2)
+        logging.info(f"Detected face with score: {score_value}% and bounding box: {bbox}")
 
         # Draw the confidence score above the bounding box
         cv2.putText(image, score, (bbox[0], bbox[1] - 20), self.font, 2, self.bbox_color, 2)
@@ -102,7 +110,6 @@ class FaceTrackingSystem:
         """
         Draw the current servo motor positions on the image.
         """
-
         # Draw servo motor positions
         cv2.putText(image, f"Servo X: {int(self.servo_positions[0])} deg", (50, 50), self.font, 1, self.text_color, 2)
         cv2.putText(image, f"Servo Y: {int(self.servo_positions[1])} deg", (50, 100), self.font, 1, self.text_color, 2)
@@ -111,7 +118,7 @@ class FaceTrackingSystem:
         """
         Clean up resources.
         """
-
+        logging.info("Cleaning up resources.")
         # Release the camera and close the connection to Arduino
         cv2.destroyAllWindows()
         self.cap.release()
@@ -121,12 +128,12 @@ class FaceTrackingSystem:
         """
         Main loop for processing the camera stream, detecting faces, and controlling servo motors.
         """
-
+        logging.info("Starting face tracking system.")
         while True:
             # Capture image from the camera
             success, image = self.cap.read()
             if not success:
-                print("Unable to capture image")
+                logging.error("Unable to capture image")
                 break
 
             # Detect faces in the image
@@ -148,6 +155,7 @@ class FaceTrackingSystem:
                 
             else:
                 cv2.putText(image, "NO TARGET", (850, 50), self.font, 2, (0, 0, 255), 2)
+                logging.info("No target detected.")
 
             # Draw the servo positions
             self.draw_servo_positions(image)
@@ -157,6 +165,7 @@ class FaceTrackingSystem:
 
             # Stop the program when 'q' key is pressed
             if cv2.waitKey(1) & 0xFF == ord("q"):
+                logging.info("Quitting the application.")
                 break
 
         # Clean up resources after finishing
