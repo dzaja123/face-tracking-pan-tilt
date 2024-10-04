@@ -6,7 +6,7 @@ This project implements a face tracking system using OpenCV, MediaPipe, and Ardu
 
 To run this project, you need to have the following libraries installed:
 
-- Python 3.x
+- Python >=3.8
 - OpenCV
 - MediaPipe
 - PyFirmata
